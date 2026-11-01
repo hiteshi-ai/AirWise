@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Default: Soft Lavender / Light Violet */
+  --color-bg: #F8F6FD;
+  --color-card: #FFFFFF;
+  --color-border: #E8E2F5;
+  --color-primary: #7C5CFC;
+  --color-primary-hover: #6948E8;
+  --color-primary-light: #F1EDFE;
+  --color-text: #211A34;
+  --color-muted: #665D80;
+  --color-accent: #9E85FC;
+}
+
+[data-theme="skyblue"] {
+  --color-bg: #F3F8FD;
+  --color-card: #FFFFFF;
+  --color-border: #DDEBF8;
+  --color-primary: #258BF5;
+  --color-primary-hover: #1577E0;
+  --color-primary-light: #EBF4FD;
+  --color-text: #18283E;
+  --color-muted: #516A8C;
+  --color-accent: #5BA8F8;
+}
+
+[data-theme="mint"] {
+  --color-bg: #F3FAF5;
+  --color-card: #FFFFFF;
+  --color-border: #D8F2E3;
+  --color-primary: #109A5E;
+  --color-primary-hover: #0B824E;
+  --color-primary-light: #EAF7F0;
+  --color-text: #173325;
+  --color-muted: #4F7462;
+  --color-accent: #34C383;
+}
+
+[data-theme="peach"] {
+  --color-bg: #FDF7F3;
+  --color-card: #FFFFFF;
+  --color-border: #FCE6DA;
+  --color-primary: #E8683B;
+  --color-primary-hover: #D05327;
+  --color-primary-light: #FDF0EA;
+  --color-text: #3B241A;
+  --color-muted: #856153;
+  --color-accent: #F58C66;
+}
+
+[data-theme="neutral"] {
+  --color-bg: #F8F9FA;
+  --color-card: #FFFFFF;
+  --color-border: #E5E7EB;
+  --color-primary: #4B5563;
+  --color-primary-hover: #374151;
+  --color-primary-light: #F3F4F6;
+  --color-text: #111827;
+  --color-muted: #6B7280;
+  --color-accent: #9CA3AF;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Leaflet map fix */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.75rem;
+  z-index: 10;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
