@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: airwise-backend
+    runtime: java
+    rootDir: backend
+    plan: free
+    region: singapore
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/airwise-backend-1.0.0.jar
+    healthCheckPath: /api/public/overview
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: postgres
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://*.vercel.app,http://localhost:5173
+      - key: DATA_SYNC_ENABLED
+        value: "true"
+      # Set SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD from Neon
+      # or link a Render PostgreSQL database below:
+      # - key: DATABASE_URL
+      #   fromDatabase:
+      #     name: airwise-db
+      #     property: connectionString
+
+# Optional: To use Render's native PostgreSQL instead of Neon, uncomment below:
+# databases:
+#   - name: airwise-db
+#     plan: free
+#     region: singapore
+#     databaseName: airwise_db
+#     user: airwise_user
