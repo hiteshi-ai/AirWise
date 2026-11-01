@@ -25,8 +25,11 @@ public class HelpController {
             @RequestParam(required = false) String role,
             Authentication auth) {
         String effectiveRole = role;
-        if (auth != null && auth.isAuthenticated()) {
+        if (auth != null && auth.isAuthenticated() && (role == null || role.isBlank())) {
             effectiveRole = auth.getAuthorities().stream().findFirst().map(Object::toString).orElse("ROLE_CITIZEN");
+        }
+        if (effectiveRole == null || effectiveRole.isBlank() || "ALL".equalsIgnoreCase(effectiveRole)) {
+            return ResponseEntity.ok(helpArticleService.getAllArticles());
         }
         return ResponseEntity.ok(helpArticleService.getArticlesForRole(effectiveRole));
     }

@@ -14,11 +14,16 @@ export const LandingPage: React.FC = () => {
   const [overview, setOverview] = useState<NationalOverview | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchOverview = () => {
+    setLoading(true);
     api.getOverview()
       .then((data) => setOverview(data))
       .catch((err) => console.error('Error fetching overview:', err))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchOverview();
   }, []);
 
   return (
@@ -176,8 +181,14 @@ export const LandingPage: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="py-8 text-center text-xs text-theme-muted">
-              Monitoring feed initializing. Please trigger a manual sync or wait for scheduled polling.
+            <div className="py-8 text-center text-xs text-theme-muted space-y-3">
+              <p>Monitoring telemetry connecting. If the cloud backend was suspended for inactivity, it takes 30 seconds to wake up.</p>
+              <button
+                onClick={fetchOverview}
+                className="px-4 py-2 rounded-xl bg-theme-primary text-white text-xs font-semibold shadow-xs hover:bg-theme-primary-hover transition-colors"
+              >
+                Retry Telemetry
+              </button>
             </div>
           )}
         </div>

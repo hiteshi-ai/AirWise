@@ -17,8 +17,8 @@ export const HelpCentre: React.FC = () => {
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   useEffect(() => {
-    api.getHelpArticles(user?.role).then(setArticles).catch(console.error);
-  }, [user]);
+    api.getHelpArticles('ALL').then(setArticles).catch(console.error);
+  }, []);
 
   const filteredArticles = articles.filter((art) => {
     if (activeTab !== 'ALL' && art.targetRole !== activeTab && art.targetRole !== 'GENERAL') {
@@ -91,17 +91,15 @@ export const HelpCentre: React.FC = () => {
             <BarChart3 className="w-3.5 h-3.5" />
             <span>{t('help.researcherTab')}</span>
           </button>
-          {user?.role && user.role.includes('ADMIN') && (
-            <button
-              onClick={() => setActiveTab('ADMIN')}
-              className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 ${
-                activeTab === 'ADMIN' ? 'bg-theme-primary text-white font-semibold' : 'text-theme-muted hover:text-theme-text'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>{t('help.adminTab')}</span>
-            </button>
-          )}
+          <button
+            onClick={() => setActiveTab('ADMIN')}
+            className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 ${
+              activeTab === 'ADMIN' ? 'bg-theme-primary text-white font-semibold' : 'text-theme-muted hover:text-theme-text'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>{t('help.adminTab')}</span>
+          </button>
         </div>
       </div>
 

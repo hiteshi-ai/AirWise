@@ -35,31 +35,86 @@ export const CitizenPortal: React.FC = () => {
   const [alertCategory, setAlertCategory] = useState('Poor');
 
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Initial load
-  useEffect(() => {
-    Promise.all([
+  const loadData = async () => {
+    setLoading(true);
+    setLoadError(null);
+
+    const [stationsRes, statesRes, citiesRes] = await Promise.allSettled([
       api.getStations(),
       api.getStates(),
       api.getCities(),
-    ]).then(([stList, stateList, cityList]) => {
-      setStations(stList);
-      setStates(stateList);
-      setCities(cityList);
-      if (stList.length > 0) {
-        setSelectedStation(stList[0]);
+    ]);
+
+    let loadedStations: MonitoringStation[] = [];
+    if (stationsRes.status === 'fulfilled' && Array.isArray(stationsRes.value)) {
+      loadedStations = stationsRes.value;
+      setStations(loadedStations);
+      if (loadedStations.length > 0) {
+        setSelectedStation(loadedStations[0]);
       }
-    }).catch(console.error).finally(() => setLoading(false));
+    }
+
+    if (statesRes.status === 'fulfilled' && Array.isArray(statesRes.value) && statesRes.value.length > 0) {
+      setStates(statesRes.value);
+    } else if (loadedStations.length > 0) {
+      const uniqueStates = Array.from(new Set(loadedStations.map((s) => s.state))).sort();
+      setStates(uniqueStates);
+    }
+
+    if (citiesRes.status === 'fulfilled' && Array.isArray(citiesRes.value) && citiesRes.value.length > 0) {
+      setCities(citiesRes.value);
+    } else if (loadedStations.length > 0) {
+      const uniqueCities = Array.from(new Set(loadedStations.map((s) => s.city))).sort();
+      setCities(uniqueCities);
+    }
+
+    if (loadedStations.length === 0) {
+      setLoadError('Connecting to live telemetry. The cloud backend may be initializing from cold start.');
+    }
+    setLoading(false);
+  };
+
+  // Initial load
+  useEffect(() => {
+    loadData();
   }, []);
 
   // Filter cities when state changes
   useEffect(() => {
     if (selectedState) {
-      api.getCities(selectedState).then(setCities).catch(console.error);
+      api.getCities(selectedState)
+        .then((res) => {
+          if (Array.isArray(res) && res.length > 0) {
+            setCities(res);
+          } else {
+            const fallbackCities = Array.from(
+              new Set(stations.filter((s) => s.state.toLowerCase() === selectedState.toLowerCase()).map((s) => s.city))
+            ).sort();
+            setCities(fallbackCities);
+          }
+        })
+        .catch(() => {
+          const fallbackCities = Array.from(
+            new Set(stations.filter((s) => s.state.toLowerCase() === selectedState.toLowerCase()).map((s) => s.city))
+          ).sort();
+          setCities(fallbackCities);
+        });
     } else {
-      api.getCities().then(setCities).catch(console.error);
+      api.getCities()
+        .then((res) => {
+          if (Array.isArray(res) && res.length > 0) {
+            setCities(res);
+          } else {
+            setCities(Array.from(new Set(stations.map((s) => s.city))).sort());
+          }
+        })
+        .catch(() => {
+          setCities(Array.from(new Set(stations.map((s) => s.city))).sort());
+        });
     }
-  }, [selectedState]);
+  }, [selectedState, stations]);
 
   // Load details & history when station changes
   useEffect(() => {
@@ -205,6 +260,24 @@ export const CitizenPortal: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Cold start recovery banner */}
+      {loadError && stations.length === 0 && (
+        <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+            <span>{loadError}</span>
+          </div>
+          <button
+            onClick={loadData}
+            disabled={loading}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition-colors shadow-xs"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>Retry Connection</span>
+          </button>
+        </div>
+      )}
 
       {/* Global State & City Filters */}
       <div className="p-4 rounded-xl border border-theme-border bg-theme-card grid grid-cols-1 sm:grid-cols-3 gap-3">
