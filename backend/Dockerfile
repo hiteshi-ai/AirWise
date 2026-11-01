@@ -11,8 +11,9 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/airwise-backend-1.0.0.jar app.jar
 
-# Render injects PORT; default 8080 for local docker run
-ENV PORT=8080
-EXPOSE 8080
+# Render injects PORT (default 10000); Spring Boot reads ${PORT} from application.yml
+ENV PORT=10000
+EXPOSE 10000
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT exec java -Dserver.port=${PORT} -jar app.jar
+
