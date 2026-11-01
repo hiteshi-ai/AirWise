@@ -7,13 +7,11 @@ COPY src ./src
 RUN mvn clean package -DskipTests -B
 
 # ---- Run Stage ----
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/airwise-backend-1.0.0.jar app.jar
 
-# Render injects PORT (default 10000); Spring Boot reads ${PORT} from application.yml
+# Render injects PORT (default 10000)
 ENV PORT=10000
-EXPOSE 10000
 
-ENTRYPOINT exec java -Dserver.port=${PORT} -jar app.jar
-
+ENTRYPOINT exec java -Xmx384m -Xms128m -Dserver.port=${PORT} -jar app.jar
